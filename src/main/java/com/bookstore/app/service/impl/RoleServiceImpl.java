@@ -46,6 +46,18 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
     }
 
+//    @Override
+//    public RoleResponse createRole(RoleRequest roleRequest) {
+//        roleRepository.findByName(roleRequest.getName())
+//                .ifPresent(
+//                        role -> {
+//                            throw new ResourceAlreadyExistsException("Role already exists");
+//                        }
+//                );
+//        Role savedRole = modelMapper.map(roleRequest, Role.class);
+//        return modelMapper.map(roleRepository.save(savedRole), RoleResponse.class);
+//    }
+
     @Override
     public RoleResponse updateRole(Long id, RoleRequest roleRequest) {
         Role existingRole = roleRepository.findById(id).

@@ -35,4 +35,17 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT
         );
     }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException(BadCredentialsException ex) {
+        log.error("Bad credentials exception: {}", ex.getMessage());
+        return new ResponseEntity<>(
+                ApiResponse.<Void>builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .data(null)
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }

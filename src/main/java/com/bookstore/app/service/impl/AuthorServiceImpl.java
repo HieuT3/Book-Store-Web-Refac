@@ -32,17 +32,20 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public AuthorResponse getAuthorById(Long id) {
-        return authorRepository.findById(id)
-                .map(author -> modelMapper.map(author, AuthorResponse.class))
-                .orElseThrow(() -> new ResourceNotFoundException("Author not found"));
+        return modelMapper.map(
+                authorRepository.findById(id)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("Author not found with id: " + id)
+                        ),
+                AuthorResponse.class
+        );
     }
 
     @Override
     public AuthorResponse createAuthor(AuthorRequest authorRequest) {
-        authorRepository.findByName(authorRequest.getName())
-                .ifPresent(author -> {
-                    throw new ResourceAlreadyExistsException("Author already exists");
-                });
+        if(authorRepository.findByName(authorRequest.getName()).isPresent())
+            throw new ResourceAlreadyExistsException("Author already exists");
+
         Author savedAuthor = authorRepository.save(modelMapper.map(authorRequest, Author.class));
         return modelMapper.map(savedAuthor, AuthorResponse.class);
     }

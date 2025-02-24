@@ -28,8 +28,8 @@ RUN --mount=type=bind,source=pom.xml,target=pom.xml \
 # Create a stage for building the application based on the stage with downloaded dependencies.
 # This Dockerfile is optimized for Java applications that output an uber jar, which includes
 # all the dependencies needed to run your app inside a JVM. If your app doesn't output an uber
-# jar and instead relies on an application server like Apache Tomcat, you'll need to update this
-# stage with the correct filename of your package and update the base image of the "final" stage
+# jar and instead relies on an application server like Apache Tomcat, you'll need to updateBook this
+# stage with the correct filename of your package and updateBook the base image of the "final" stage
 # use the relevant app server, e.g., using tomcat (https://hub.docker.com/_/tomcat/) as a base image.
 FROM deps as package
 
@@ -76,7 +76,7 @@ RUN adduser \
     --gecos "" \
     --home "/nonexistent" \
     --shell "/sbin/nologin" \
-    --no-create-home \
+    --no-createBook-home \
     --uid "${UID}" \
     appuser
 USER appuser

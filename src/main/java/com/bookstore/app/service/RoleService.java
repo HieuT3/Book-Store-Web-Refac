@@ -10,6 +10,7 @@ public interface RoleService {
     List<RoleResponse> getAll();
     RoleResponse getRoleById(Long id);
     RoleResponse getRoleByName(RoleType name);
+//    RoleResponse createRole(RoleRequest roleRequest);
     RoleResponse updateRole(Long id, RoleRequest roleRequest);
     void deleteRoleById(Long id);
 }

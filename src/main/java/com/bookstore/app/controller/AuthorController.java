@@ -35,7 +35,7 @@ public class AuthorController {
         );
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<ApiResponse<AuthorResponse>> getAuthorById(@PathVariable("id") Long id) {
         log.info("Get author by id: {}", id);
         return ResponseEntity.ok(
