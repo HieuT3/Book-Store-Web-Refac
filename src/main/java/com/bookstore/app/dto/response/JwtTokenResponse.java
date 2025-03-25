@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class JwtTokenResponse {
     String accessToken;
-    long accessTokenExpiration;
-    String refreshToken;
-    long refreshTokenExpiration;
+    long expiration;
     UserResponse user;
 }

@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -26,9 +25,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     JwtAuthenticationFilter jwtAuthenticationFilter;
-    UserDetailsService userDetailsService;
     AuthenticationEntryPoint authenticationEntryPoint;
     AccessDeniedHandler accessDeniedHandler;
+    String[] PUBLIC_ENDPOINT  = {
+      "/api/v1/auth/login",
+      "/api/v1/auth/reset-password",
+      "/api/v1/auth/confirm-reset-password",
+      "/api/v1/auth/refresh-token",
+      "/api/v1/cart/**",
+      "/api/v1/register/**",
+      "/api/v1/search",
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,15 +48,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/api/v1/auth/**").permitAll()
-                                .requestMatchers("/api/v1/register/**").permitAll()
+                                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/author/**").permitAll()
+                                .requestMatchers("/api/v1/author/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/v1/book/**").permitAll()
+                                .requestMatchers("/api/v1/book/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET,"/api/v1/book-document/**").permitAll()
+                                .requestMatchers("/api/v1/book-document/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
-                                .requestMatchers("/api/v1/book-document/").permitAll()
+                                .requestMatchers("/api/v1/category/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/cloudinary/**").permitAll()
+                                .requestMatchers("/api/v1/cloudinary/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/order/**").permitAll()
+                                .requestMatchers("/api/v1/order/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/order-detail/**").permitAll()
+                                .requestMatchers("/api/v1/order-detail/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
                                 .requestMatchers("/error").permitAll()
-                                .anyRequest().permitAll()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                                 .accessDeniedHandler(accessDeniedHandler)

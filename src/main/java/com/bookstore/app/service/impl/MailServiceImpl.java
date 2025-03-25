@@ -19,7 +19,7 @@ public class MailServiceImpl implements MailService {
     MailSender mailSender;
 
     @Override
-    @Async
+    @Async(value = "asyncExecutor")
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(to);

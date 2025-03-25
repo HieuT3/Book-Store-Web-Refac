@@ -81,6 +81,18 @@ public class JwtAuthenticationProvider {
                 .compact();
     }
 
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return !isTokenExpired(token);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Invalid JWT token");
+        }
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = userDetails.getUsername();
         return !isTokenExpired(token) && extractUserName(token).equalsIgnoreCase(username);

@@ -10,6 +10,7 @@ import com.bookstore.app.entity.User;
 import com.bookstore.app.event.OnResetPasswordEvent;
 import com.bookstore.app.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,14 +34,28 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<JwtTokenResponse>> login(
-            @Valid @RequestBody LoginRequest loginRequest
+            @Valid @RequestBody LoginRequest loginRequest,
+            HttpServletResponse response
             ) {
         log.info("Login user with email: {}", loginRequest.getEmail());
         return ResponseEntity.ok(
                 ApiResponse.<JwtTokenResponse>builder()
                         .success(true)
                         .message("Login successful")
-                        .data(authService.login(loginRequest))
+                        .data(authService.login(loginRequest, response))
+                        .build()
+        );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        log.info("Logout user");
+        authService.logout(response);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Logout successful")
+                        .data(null)
                         .build()
         );
     }
@@ -96,6 +111,19 @@ public class AuthController {
                         .success(true)
                         .message("Get me successfully!")
                         .data(authService.getMe())
+                        .build()
+        );
+    }
+
+    @GetMapping("refresh-token")
+    public ResponseEntity<ApiResponse<JwtTokenResponse>> refreshToken(HttpServletRequest request,
+                                                                      HttpServletResponse response) {
+        log.info("Refresh token");
+        return ResponseEntity.ok(
+                ApiResponse.<JwtTokenResponse>builder()
+                        .success(true)
+                        .message("Refresh token successfully!")
+                        .data(authService.refreshToken(request, response))
                         .build()
         );
     }

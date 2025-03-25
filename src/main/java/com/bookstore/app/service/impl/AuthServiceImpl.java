@@ -14,6 +14,9 @@ import com.bookstore.app.repository.UserRepository;
 import com.bookstore.app.security.CustomerUserDetails;
 import com.bookstore.app.security.JwtAuthenticationProvider;
 import com.bookstore.app.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +25,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,21 +42,38 @@ public class AuthServiceImpl implements AuthService {
     PasswordEncoder passwordEncoder;
     ModelMapper modelMapper;
     UserRepository userRepository;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    UserDetailsService userDetailsService;
+    PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
-    public JwtTokenResponse login(LoginRequest loginRequest) {
+    public JwtTokenResponse login(LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
         CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getPrincipal();
+
+        Cookie cookie = new Cookie("refresh-token", jwtAuthenticationProvider.generateRefreshToken(userDetails));
+        cookie.setMaxAge((int) jwtAuthenticationProvider.getJwtRefreshTokenExpiration());
+        cookie.setPath("/");
+        cookie.setSecure(false);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+
         return JwtTokenResponse.builder()
                 .accessToken(jwtAuthenticationProvider.generateAccessToken(userDetails))
-                .accessTokenExpiration(jwtAuthenticationProvider.getJwtAccessTokenExpiration())
-                .refreshToken(jwtAuthenticationProvider.generateRefreshToken(userDetails))
-                .refreshTokenExpiration(jwtAuthenticationProvider.getJwtRefreshTokenExpiration())
+                .expiration(jwtAuthenticationProvider.getJwtAccessTokenExpiration())
                 .user(modelMapper.map(userDetails.getUser(), UserResponse.class))
                 .build();
+    }
+
+    @Override
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh-token", null);
+        cookie.setPath("/");
+        cookie.setSecure(false);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 
     @Override
@@ -90,5 +112,45 @@ public class AuthServiceImpl implements AuthService {
         CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
         return modelMapper.map(user, UserProfileResponse.class);
+    }
+
+    @Override
+    public JwtTokenResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = "";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refresh-token")) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+
+            if (refreshToken.isEmpty())
+                throw new RuntimeException("Refresh token not found");
+            try {
+                if (!jwtAuthenticationProvider.isTokenValid(refreshToken)) {
+                    Cookie cookie = new Cookie("refresh-token", null);
+                    cookie.setPath("/");
+                    cookie.setSecure(false);
+                    cookie.setHttpOnly(true);
+                    cookie.setMaxAge(0);
+
+                    throw new RuntimeException("Refresh token expired or invalid");
+                }
+
+                String username = jwtAuthenticationProvider.extractUserName(refreshToken);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                return JwtTokenResponse.builder()
+                        .accessToken(jwtAuthenticationProvider.generateAccessToken(userDetails))
+                        .expiration(jwtAuthenticationProvider.getJwtAccessTokenExpiration())
+                        .build();
+            } catch (RuntimeException e){
+                throw new RuntimeException();
+            }
+        } else {
+            throw new RuntimeException("Cookies not found");
+        }
     }
 }

@@ -34,7 +34,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         }
     }
 
-    @Async
+    @Async(value = "asyncExecutor")
     @Override
     public void upload(MultipartFile file) {
         File tempFile = null;
