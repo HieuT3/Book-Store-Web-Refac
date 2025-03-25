@@ -2,14 +2,12 @@ package com.bookstore.app.service.impl;
 
 import com.bookstore.app.constant.RoleType;
 import com.bookstore.app.dto.request.RegisterRequest;
-import com.bookstore.app.dto.response.UserProfileResponse;
 import com.bookstore.app.dto.response.UserResponse;
 import com.bookstore.app.entity.User;
 import com.bookstore.app.exception.ResourceAlreadyExistsException;
 import com.bookstore.app.exception.ResourceNotFoundException;
 import com.bookstore.app.repository.RoleRepository;
 import com.bookstore.app.repository.UserRepository;
-import com.bookstore.app.security.CustomerUserDetails;
 import com.bookstore.app.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +16,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

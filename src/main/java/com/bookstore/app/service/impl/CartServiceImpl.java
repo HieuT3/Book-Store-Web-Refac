@@ -42,7 +42,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public String addItems(String cartId, String bookId, int quantity) {
+    public String addItems(String cartId, Long bookId, int quantity) {
         CartItems cartItems = null;
         if(cartId == null || cartId.isEmpty()) cartId = CART_KEY_PREFIX + generateCartId();
         else cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void minusItems(String cartId, String bookId, int quantity) {
+    public void minusItems(String cartId, Long bookId, int quantity) {
         CartItems cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
         if (cartItems != null) {
             cartItems.minusItem(bookId, quantity);
@@ -62,7 +62,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void removeItem(String cartId, String bookId) {
+    public void removeItem(String cartId, Long bookId) {
         CartItems cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
         if (cartItems != null) {
             cartItems.removeItem(bookId);

@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         log.info("Loading user by email: {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-        return CustomerUserDetails.builder()
+        return CustomUserDetails.builder()
                 .user(user)
                 .build();
     }

@@ -53,13 +53,13 @@ public class CartController {
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
                         .success(true)
-                        .message("Add items to cart successfully with cartId: " + cartId)
+                        .message("Add items to cart successfully with cartId: " + cartIdValue)
                         .data(null)
                         .build()
         );
     }
 
-    @PostMapping("/minus")
+    @PostMapping("/update")
     public ResponseEntity<ApiResponse<Void>> minusItems(@CookieValue(value = "cartId", defaultValue = "") String cartId,
                                                          @Valid @RequestBody CartRequest cartRequest) {
         log.info("Minus items in cart from cartId: {}", cartId);
@@ -75,7 +75,7 @@ public class CartController {
 
     @DeleteMapping("/remove")
     public ResponseEntity<ApiResponse<Void>> removeItem(@CookieValue(value = "cartId", defaultValue = "") String cartId,
-                                                         @RequestParam("bookId") String bookId) {
+                                                         @RequestParam("bookId") Long bookId) {
         log.info("Remove item in cart from cartId: {}", cartId);
         cartService.removeItem(cartId,bookId);
         return ResponseEntity.ok(

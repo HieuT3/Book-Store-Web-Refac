@@ -25,10 +25,9 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "book_id")
-    private Book books;
+    private Book book;
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "order_id")
-    private Order orders;
-
+    private Order order;
 }

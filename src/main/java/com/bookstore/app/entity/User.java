@@ -40,4 +40,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<Order> orders = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<Review> reviews = new HashSet<>();
 }

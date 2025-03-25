@@ -20,6 +20,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class OrderDetailController {
+
     OrderDetailService orderDetailService;
 
     @GetMapping("")
@@ -29,7 +30,31 @@ public class OrderDetailController {
                 ApiResponse.<List<OrderDetailResponse>>builder()
                         .success(true)
                         .message("Get all order details")
-                        .data(this.orderDetailService.getAll())
+                        .data(orderDetailService.getAll())
+                        .build()
+        );
+    }
+
+    @GetMapping("/{orderDetailId}")
+    public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetailById(Long orderDetailId) {
+        log.info("Get order detail by ID: {}", orderDetailId);
+        return ResponseEntity.ok(
+                ApiResponse.<OrderDetailResponse>builder()
+                        .success(true)
+                        .message("Get order detail by ID")
+                        .data(orderDetailService.getOrderDetailById(orderDetailId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<ApiResponse<List<OrderDetailResponse>>> getOrderDetailsByOrderId(Long orderId) {
+        log.info("Get order details by order ID: {}", orderId);
+        return ResponseEntity.ok(
+                ApiResponse.<List<OrderDetailResponse>>builder()
+                        .success(true)
+                        .message("Get order details by order ID")
+                        .data(orderDetailService.getOrderDetailsByOrderId(orderId))
                         .build()
         );
     }

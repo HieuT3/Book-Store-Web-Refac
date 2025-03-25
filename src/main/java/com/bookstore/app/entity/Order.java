@@ -54,8 +54,8 @@ public class Order {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private OrderStatusType orderStatus;
+    private OrderStatusType orderStatus = OrderStatusType.PENDING;
 
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(mappedBy = "order")
     private Set<OrderDetail> orderDetails = new HashSet<>();
 }

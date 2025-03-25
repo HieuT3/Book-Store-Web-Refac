@@ -1,7 +1,6 @@
 package com.bookstore.app.dto.response;
 
 import com.bookstore.app.constant.OrderStatusType;
-import com.bookstore.app.entity.OrderDetail;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -23,5 +22,5 @@ public class OrderResponse {
     int bookCopies;
     double total;
     OrderStatusType orderStatus;
-    Set<OrderDetail> orderDetails;
+    Set<OrderDetailResponse> orderDetails;
 }

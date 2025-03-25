@@ -88,8 +88,8 @@ public class JwtAuthenticationProvider {
                     .build()
                     .parseClaimsJws(token);
             return !isTokenExpired(token);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Invalid JWT token");
+        } catch (Exception e) {
+            return false;
         }
     }
 

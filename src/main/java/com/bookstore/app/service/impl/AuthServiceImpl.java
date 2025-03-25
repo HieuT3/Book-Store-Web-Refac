@@ -11,7 +11,7 @@ import com.bookstore.app.exception.ResourceAlreadyExistsException;
 import com.bookstore.app.exception.ResourceNotFoundException;
 import com.bookstore.app.repository.PasswordResetTokenRepository;
 import com.bookstore.app.repository.UserRepository;
-import com.bookstore.app.security.CustomerUserDetails;
+import com.bookstore.app.security.CustomUserDetails;
 import com.bookstore.app.security.JwtAuthenticationProvider;
 import com.bookstore.app.service.AuthService;
 import jakarta.servlet.http.Cookie;
@@ -25,7 +25,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
-        CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         Cookie cookie = new Cookie("refresh-token", jwtAuthenticationProvider.generateRefreshToken(userDetails));
         cookie.setMaxAge((int) jwtAuthenticationProvider.getJwtRefreshTokenExpiration());
@@ -109,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserProfileResponse getMe() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         User user = userDetails.getUser();
         return modelMapper.map(user, UserProfileResponse.class);
     }
@@ -128,27 +127,24 @@ public class AuthServiceImpl implements AuthService {
 
             if (refreshToken.isEmpty())
                 throw new RuntimeException("Refresh token not found");
-            try {
-                if (!jwtAuthenticationProvider.isTokenValid(refreshToken)) {
-                    Cookie cookie = new Cookie("refresh-token", null);
-                    cookie.setPath("/");
-                    cookie.setSecure(false);
-                    cookie.setHttpOnly(true);
-                    cookie.setMaxAge(0);
+            if (!jwtAuthenticationProvider.isTokenValid(refreshToken)) {
+                Cookie cookie = new Cookie("refresh-token", null);
+                cookie.setPath("/");
+                cookie.setSecure(false);
+                cookie.setHttpOnly(true);
+                cookie.setMaxAge(0);
 
-                    throw new RuntimeException("Refresh token expired or invalid");
-                }
-
-                String username = jwtAuthenticationProvider.extractUserName(refreshToken);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-                return JwtTokenResponse.builder()
-                        .accessToken(jwtAuthenticationProvider.generateAccessToken(userDetails))
-                        .expiration(jwtAuthenticationProvider.getJwtAccessTokenExpiration())
-                        .build();
-            } catch (RuntimeException e){
-                throw new RuntimeException();
+                throw new RuntimeException("Refresh token expired or invalid");
             }
+
+            String username = jwtAuthenticationProvider.extractUserName(refreshToken);
+            CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+
+            return JwtTokenResponse.builder()
+                    .accessToken(jwtAuthenticationProvider.generateAccessToken(userDetails))
+                    .expiration(jwtAuthenticationProvider.getJwtAccessTokenExpiration())
+                    .user(modelMapper.map(userDetails.getUser(), UserResponse.class))
+                    .build();
         } else {
             throw new RuntimeException("Cookies not found");
         }

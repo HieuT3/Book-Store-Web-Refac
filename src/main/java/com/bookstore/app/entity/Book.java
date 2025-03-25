@@ -67,6 +67,9 @@ public class Book {
     )
     private Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "books")
+    @OneToMany(mappedBy = "book")
     private Set<OrderDetail> orderDetails = new HashSet<>();
+
+    @OneToMany(mappedBy = "book")
+    private Set<Review> reviews = new HashSet<>();
 }
