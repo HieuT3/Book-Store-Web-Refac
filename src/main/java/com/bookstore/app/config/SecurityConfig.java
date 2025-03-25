@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,19 +40,21 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        authorize -> authorize.requestMatchers("/api/v1/auth/**").permitAll()
-//                                .requestMatchers(HttpMethod.GET, "/api/v1/author/**").permitAll()
+                        authorize -> authorize
+                                .requestMatchers("/api/v1/auth/**").permitAll()
+                                .requestMatchers("/api/v1/register/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/author/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/book/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "api/v1/user/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
+                                .requestMatchers("/api/v1/book-document/").permitAll()
                                 .requestMatchers("/error").permitAll()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
-                .exceptionHandling(
-                        ex -> ex.accessDeniedHandler(accessDeniedHandler)
+                .exceptionHandling(ex -> ex
+                                .accessDeniedHandler(accessDeniedHandler)
                                 .authenticationEntryPoint(authenticationEntryPoint)
                 )
-                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
@@ -63,13 +63,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        return daoAuthenticationProvider;
     }
 }

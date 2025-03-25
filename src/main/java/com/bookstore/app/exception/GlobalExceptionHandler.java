@@ -48,4 +48,30 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    @ExceptionHandler(value = UserNotActiveException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotActiveException(UserNotActiveException ex) {
+        log.error("User not active exception: {}", ex.getMessage());
+        return new ResponseEntity<>(
+                ApiResponse.<Void>builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .data(null)
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(value = TokenExpiredException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTokenExpiredException(TokenExpiredException ex) {
+        log.error("Token expired exception: {}", ex.getMessage());
+        return new ResponseEntity<>(
+                ApiResponse.<Void>builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .data(null)
+                        .build(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }

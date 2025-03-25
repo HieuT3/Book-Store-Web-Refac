@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +34,13 @@ public class Book {
     private String isbn;
 
     @Column(nullable = false)
-    private String imageURL;
+    private String smallImageUrl;
+
+    @Column(nullable = false)
+    private String mediumImageUrl;
+
+    @Column(nullable = false)
+    private String largeImageUrl;
 
     @Column(nullable = false, precision = 2)
     private double price;
@@ -42,7 +48,7 @@ public class Book {
     @Column(nullable = false)
     private LocalDate publishedDate;
 
-    @UpdateTimestamp
+    @CreationTimestamp
     private LocalDateTime lastUpdated;
 
     @ManyToMany

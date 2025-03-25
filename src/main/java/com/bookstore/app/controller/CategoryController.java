@@ -34,13 +34,25 @@ public class CategoryController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> findCategoryById(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable("id") Long id) {
         log.info("Get category by id: {}", id);
         return ResponseEntity.ok(
                 ApiResponse.<CategoryResponse>builder()
                         .success(true)
                         .message("Get category by id: " + id)
                         .data(this.categoryService.getCategoryById(id))
+                        .build()
+        );
+    }
+
+    @GetMapping("featured")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategoriesFeatured() {
+        log.info("Get categories featured");
+        return ResponseEntity.ok(
+                ApiResponse.<List<CategoryResponse>>builder()
+                        .success(true)
+                        .message("Get categories featured successfully!")
+                        .data(categoryService.getCategoriesFeatured())
                         .build()
         );
     }

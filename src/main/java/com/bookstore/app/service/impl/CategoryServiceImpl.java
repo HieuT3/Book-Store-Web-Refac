@@ -10,9 +10,12 @@ import com.bookstore.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,12 +24,13 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryRepository categoryRepository;
     ModelMapper modelMapper;
 
+    @Cacheable(value = "categories", key = "'all'")
     @Override
     public List<CategoryResponse> getAll() {
         return categoryRepository.findAll()
                 .stream()
                 .map(category -> modelMapper.map(category, CategoryResponse.class))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -34,6 +38,15 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findById(id)
                 .map(category -> modelMapper.map(category, CategoryResponse.class))
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+    }
+
+    @Cacheable(value = "categories", key = "'featured'")
+    @Override
+    public List<CategoryResponse> getCategoriesFeatured() {
+        return categoryRepository.findCategoriesFeatured()
+                .stream()
+                .map(category -> modelMapper.map(category, CategoryResponse.class))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

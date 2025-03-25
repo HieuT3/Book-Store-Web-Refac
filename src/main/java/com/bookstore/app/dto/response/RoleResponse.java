@@ -1,11 +1,13 @@
 package com.bookstore.app.dto.response;
 
 import com.bookstore.app.constant.RoleType;
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleResponse {
     Long roleId;

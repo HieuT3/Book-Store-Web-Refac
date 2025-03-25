@@ -1,8 +1,10 @@
 package com.bookstore.app.controller;
 
-import com.bookstore.app.dto.request.UserRequest;
+import com.bookstore.app.constant.RoleType;
+import com.bookstore.app.dto.request.RegisterRequest;
 import com.bookstore.app.dto.response.ApiResponse;
 import com.bookstore.app.dto.response.UserResponse;
+import com.bookstore.app.service.MailService;
 import com.bookstore.app.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -10,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +25,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserController {
-    private UserService userService;
+    UserService userService;
+    MailService mailService;
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAll() {
@@ -60,14 +66,14 @@ public class UserController {
 
     @PostMapping("")
     public ResponseEntity<ApiResponse<UserResponse>> createUser(
-            @Valid @RequestBody UserRequest userRequest
+            @Valid @RequestBody RegisterRequest registerRequest
             ) {
-        log.info("Create user with email: {}", userRequest.getEmail());
+        log.info("Create user with email: {}", registerRequest.getEmail());
         return ResponseEntity.ok(
                 ApiResponse.<UserResponse>builder()
                         .success(true)
-                        .message("Create user with email: " + userRequest.getEmail() + " successfully!")
-                        .data(userService.createUserWithUserRole(userRequest))
+                        .message("Create user with email: " + registerRequest.getEmail() + " successfully!")
+                        .data(userService.createUserWithRole(registerRequest, RoleType.USER))
                         .build()
         );
     }
@@ -75,14 +81,14 @@ public class UserController {
     @PutMapping("{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserRequest userRequest
+            @Valid @RequestBody RegisterRequest registerRequest
             ) {
         log.info("Update user with id: {}", id);
         return ResponseEntity.ok(
                 ApiResponse.<UserResponse>builder()
                         .success(true)
                         .message("Update user with id: " + id + " successfully!")
-                        .data(userService.updateUser(id, userRequest))
+                        .data(userService.updateUser(id, registerRequest))
                         .build()
         );
     }
@@ -95,6 +101,21 @@ public class UserController {
                 ApiResponse.<Void>builder()
                         .success(true)
                         .message("Delete user with id: " + id + " successfully!")
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @GetMapping("mail")
+    public ResponseEntity<ApiResponse<Void>> sendMail() {
+        log.info("Send mail");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        mailService.sendEmail(userDetails.getUsername(), "Test send email", "TEST");
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .success(true)
+                        .message("Email is being sent! Please check your inbox.")
                         .data(null)
                         .build()
         );

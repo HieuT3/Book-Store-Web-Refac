@@ -16,7 +16,9 @@ public class BookResponse {
      String title;
      String description;
      String isbn;
-     String imageURL;
+     String smallImageUrl;
+     String mediumImageUrl;
+     String largeImageUrl;
      double price;
      LocalDate publishedDate;
     Set<AuthorResponse> authors;

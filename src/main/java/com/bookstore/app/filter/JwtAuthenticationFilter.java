@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,7 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     JwtAuthenticationProvider jwtAuthenticationProvider;
     UserDetailsService userDetailsService;
-    AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -45,7 +43,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("Request contains Authorization header");
             String jwtToken = authHeader.substring(7);
             String userEmail = jwtAuthenticationProvider.extractUserName(jwtToken);
-            System.out.println("test");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if(userEmail != null && authentication == null) {
                 log.info("User email is not null and authentication is null");

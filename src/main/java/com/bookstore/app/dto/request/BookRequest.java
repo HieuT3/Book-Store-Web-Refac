@@ -23,7 +23,13 @@ public class BookRequest {
     String isbn;
 
     @NotBlank
-    String imageURL;
+    String smallImageUrl;
+
+    @NotBlank
+    String mediumImageUrl;
+
+    @NotBlank
+    String largeImageUrl;
 
     @NotNull
     double price;

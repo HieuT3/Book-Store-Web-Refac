@@ -3,6 +3,7 @@ package com.bookstore.app.controller;
 import com.bookstore.app.dto.request.BookRequest;
 import com.bookstore.app.dto.response.ApiResponse;
 import com.bookstore.app.dto.response.BookResponse;
+import com.bookstore.app.dto.response.PageResponse;
 import com.bookstore.app.service.BookService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -43,6 +44,49 @@ public class BookController {
                         .success(true)
                         .message("Get book by id: " + id + " successfully!")
                         .data(bookService.getBookById(id))
+                        .build()
+        );
+    }
+
+    @GetMapping("/pagination")
+    public ResponseEntity<ApiResponse<PageResponse<BookResponse>>> getBooksPagination(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) {
+        log.info("Get books pagination with page: {} and limit: {}", page, limit);
+        return ResponseEntity.ok(
+                ApiResponse.<PageResponse<BookResponse>>builder()
+                        .success(true)
+                        .message("Get books pagination with page: " + page + " and limit: " + limit + " successfully!")
+                        .data(bookService.getBooksPagination(page, limit))
+                        .build()
+        );
+    }
+
+    @GetMapping("/category/{id}")
+    public ResponseEntity<ApiResponse<List<BookResponse>>> getBooksByCategoryId(@PathVariable("id") Long categoryId) {
+        log.info("Get books by category id: {}", categoryId);
+        return ResponseEntity.ok(
+                ApiResponse.<List<BookResponse>>builder()
+                        .success(true)
+                        .message("Get books by category id: " + categoryId + " successfully!")
+                        .data(bookService.getBooksByCategoryId(categoryId))
+                        .build()
+        );
+    }
+
+    @GetMapping("featured/category/{id}")
+    public ResponseEntity<ApiResponse<List<BookResponse>>> getBooksFeaturedByCategoryId(
+            @PathVariable("id") Long categoryId,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) {
+        log.info("Get books featured by category id: {}", categoryId);
+        return ResponseEntity.ok(
+                ApiResponse.<List<BookResponse>>builder()
+                        .success(true)
+                        .message("Get books featured by category id: " + categoryId + " successfully!")
+                        .data(bookService.getBooksFeaturedByCategoryId(categoryId, page, limit))
                         .build()
         );
     }
