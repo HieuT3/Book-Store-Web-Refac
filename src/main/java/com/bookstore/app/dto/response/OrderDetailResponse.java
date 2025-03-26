@@ -1,15 +1,16 @@
 package com.bookstore.app.dto.response;
 
-import com.bookstore.app.entity.Book;
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetailResponse {
     Long orderDetailId;
     int quantity;
     double subTotal;
-    Book books;
+    BookResponse book;
 }

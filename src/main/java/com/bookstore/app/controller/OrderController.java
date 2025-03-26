@@ -5,6 +5,7 @@ import com.bookstore.app.dto.request.OrderRequest;
 import com.bookstore.app.dto.response.ApiResponse;
 import com.bookstore.app.dto.response.OrderResponse;
 import com.bookstore.app.service.OrderService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -50,13 +51,15 @@ public class OrderController {
     @PostMapping("/place-order")
     public ResponseEntity<ApiResponse<OrderResponse>> placeOrder(
             @CookieValue(value = "cartId", defaultValue = "") String cartId,
-            @Valid @RequestBody OrderRequest orderRequest) {
+            @Valid @RequestBody OrderRequest orderRequest,
+            HttpServletResponse response) {
+        System.out.println(orderRequest);
         log.info("Place order with cartId: {}", cartId);
         return ResponseEntity.ok(
                 ApiResponse.<OrderResponse>builder()
                         .success(true)
                         .message("Place order with cartId: " + cartId)
-                        .data(orderService.createOrder(cartId, orderRequest))
+                        .data(orderService.createOrder(cartId, orderRequest, response))
                         .build()
         );
     }

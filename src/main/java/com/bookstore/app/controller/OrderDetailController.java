@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +37,7 @@ public class OrderDetailController {
     }
 
     @GetMapping("/{orderDetailId}")
-    public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetailById(Long orderDetailId) {
+    public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetailById(@PathVariable Long orderDetailId) {
         log.info("Get order detail by ID: {}", orderDetailId);
         return ResponseEntity.ok(
                 ApiResponse.<OrderDetailResponse>builder()
@@ -48,7 +49,7 @@ public class OrderDetailController {
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<ApiResponse<List<OrderDetailResponse>>> getOrderDetailsByOrderId(Long orderId) {
+    public ResponseEntity<ApiResponse<List<OrderDetailResponse>>> getOrderDetailsByOrderId(@PathVariable Long orderId) {
         log.info("Get order details by order ID: {}", orderId);
         return ResponseEntity.ok(
                 ApiResponse.<List<OrderDetailResponse>>builder()

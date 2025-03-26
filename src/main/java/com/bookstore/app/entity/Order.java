@@ -56,6 +56,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatusType orderStatus = OrderStatusType.PENDING;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private Set<OrderDetail> orderDetails = new HashSet<>();
 }

@@ -12,6 +12,8 @@ import com.bookstore.app.repository.OrderRepository;
 import com.bookstore.app.security.CustomUserDetails;
 import com.bookstore.app.service.OrderService;
 import com.bookstore.app.utils.CartItems;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
@@ -52,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse createOrder(String cartId, OrderRequest orderRequest) {
+    public OrderResponse createOrder(String cartId, OrderRequest orderRequest, HttpServletResponse response) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartItems cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
 
@@ -61,11 +63,11 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setUser(userDetails.getUser());
-        order.setShippingAddress(order.getShippingAddress());
-        order.setRecipientName(order.getRecipientName());
-        order.setRecipientPhone(order.getRecipientPhone());
-        order.setPaymentMethod(order.getPaymentMethod());
-        order.setShippingCost(order.getShippingCost());
+        order.setShippingAddress(orderRequest.getShippingAddress());
+        order.setRecipientName(orderRequest.getRecipientName());
+        order.setRecipientPhone(orderRequest.getRecipientPhone());
+        order.setPaymentMethod(orderRequest.getPaymentMethod());
+        order.setShippingCost(orderRequest.getShippingCost());
 
         Map<Long, Integer> items = cartItems.getItems();
         List<Book> books = bookRepository.findAllById(items.keySet());
@@ -89,7 +91,18 @@ public class OrderServiceImpl implements OrderService {
         order.setBookCopies(cartItems.getTotalQuantities());
         order.setTotal(total);
 
-        return modelMapper.map(orderRepository.save(order), OrderResponse.class);
+        Order savedOrder = orderRepository.save(order);
+
+        Cookie cookie = new Cookie("cartId", null);
+        cookie.setPath("/");
+        cookie.setSecure(false);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        redisTemplate.delete(cartId);
+
+        return modelMapper.map(savedOrder, OrderResponse.class);
     }
 
     @Override
