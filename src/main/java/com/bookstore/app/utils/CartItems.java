@@ -18,11 +18,10 @@ public class CartItems {
         else items.put(bookId, quantity);
     }
 
-    public void minusItem(Long bookId, int quantity) {
+    public void updateItem(Long bookId, int quantity) {
         if(!items.containsKey(bookId)) return;
-        int qty = items.get(bookId);
-        if(qty <= quantity) items.remove(bookId);
-        else items.put(bookId, qty - quantity);
+        if (quantity == 0) items.remove(bookId);
+        else items.put(bookId, quantity);
     }
 
     public void removeItem(Long bookId) {

@@ -5,6 +5,7 @@ import com.bookstore.app.dto.response.CategoryResponse;
 import com.bookstore.app.entity.Category;
 import com.bookstore.app.exception.ResourceAlreadyExistsException;
 import com.bookstore.app.exception.ResourceNotFoundException;
+import com.bookstore.app.repository.BookRepository;
 import com.bookstore.app.repository.CategoryRepository;
 import com.bookstore.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
     CategoryRepository categoryRepository;
+    BookRepository bookRepository;
     ModelMapper modelMapper;
 
     @Cacheable(value = "categories", key = "'all'")
@@ -29,15 +32,24 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponse> getAll() {
         return categoryRepository.findAll()
                 .stream()
-                .map(category -> modelMapper.map(category, CategoryResponse.class))
+                .map(category -> {
+                    Long totalBooks = bookRepository.countBooksByCategories(Set.of(category));
+                    CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
+                    categoryResponse.setTotalBooks(totalBooks);
+                    return categoryResponse;
+                })
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     public CategoryResponse getCategoryById(Long id) {
-        return categoryRepository.findById(id)
-                .map(category -> modelMapper.map(category, CategoryResponse.class))
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Long totalBooks = bookRepository.countBooksByCategories(Set.of(category));
+        CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
+        categoryResponse.setTotalBooks(totalBooks);
+        return categoryResponse;
+
     }
 
     @Cacheable(value = "categories", key = "'featured'")

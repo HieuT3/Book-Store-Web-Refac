@@ -2,8 +2,8 @@ package com.bookstore.app.controller;
 
 import com.bookstore.app.dto.request.CartRequest;
 import com.bookstore.app.dto.response.ApiResponse;
+import com.bookstore.app.dto.response.CartResponse;
 import com.bookstore.app.service.CartService;
-import com.bookstore.app.utils.CartItems;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +24,10 @@ public class CartController {
     CartService cartService;
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<CartItems>> getItems(@CookieValue(value = "cartId", defaultValue = "") String cartId) {
+    public ResponseEntity<ApiResponse<CartResponse>> getItems(@CookieValue(value = "cartId", defaultValue = "") String cartId) {
         log.info("Get items in cart from cartId: {}", cartId);
         return ResponseEntity.ok(
-                ApiResponse.<CartItems>builder()
+                ApiResponse.<CartResponse>builder()
                         .success(true)
                         .message("Get items in cart successfully with cartId: " + cartId)
                         .data(cartService.getItems(cartId))
@@ -59,15 +58,15 @@ public class CartController {
         );
     }
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<ApiResponse<Void>> minusItems(@CookieValue(value = "cartId", defaultValue = "") String cartId,
                                                          @Valid @RequestBody CartRequest cartRequest) {
-        log.info("Minus items in cart from cartId: {}", cartId);
-        cartService.minusItems(cartId, cartRequest.getBookId(), cartRequest.getQuantity());
+        log.info("Update items in cart from cartId: {} with bookId: {} and quantity: {}", cartId, cartRequest.getBookId(), cartRequest.getQuantity());
+        cartService.updateItems(cartId, cartRequest.getBookId(), cartRequest.getQuantity());
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
                         .success(true)
-                        .message("Minus items in cart successfully with cartId: " + cartId)
+                        .message("Update items in cart successfully with cartId: " + cartId)
                         .data(null)
                         .build()
         );

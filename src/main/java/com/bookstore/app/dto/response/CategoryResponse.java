@@ -11,4 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class CategoryResponse {
     Long categoryId;
     String name;
+    Long totalBooks;
 }

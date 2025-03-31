@@ -32,19 +32,34 @@ public class Order {
     private LocalDateTime orderDate;
 
     @Column(nullable = false)
-    private String shippingAddress;
-
-    @Column(nullable = false, length = 50)
     private String recipientName;
+
+    @Column(nullable = false)
+    String recipientEmail;
 
     @Column(nullable = false, length = 10)
     private String recipientPhone;
 
     @Column(nullable = false)
-    private String paymentMethod;
+    private String shippingAddress;
+
+    @Column(nullable = false)
+    private String recipientCity;
+
+    @Column(nullable = false)
+    private String recipientPostalCode;
+
+    @Column(nullable = false)
+    private String recipientCountry;
+
+    @Column(nullable = false)
+    private String shippingMethod;
 
     @Column(nullable = false, precision = 2)
     private double shippingCost;
+
+    @Column(nullable = false)
+    private String paymentMethod;
 
     @Column(nullable = false)
     private int bookCopies;

@@ -155,6 +155,13 @@ public class BookServiceImpl implements BookService {
         return List.of();
     }
 
+    @Override
+    public Long countBooksByCategoryId(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+        return bookRepository.countBooksByCategories(Set.of(category));
+    }
+
     private void setBook(Book book, BookRequest bookRequest) {
         Set<Author> authorsSet = new HashSet<>(authorRepository.findAllById(bookRequest.getAuthorsId()));
         Set<Category> categoriesSet = new HashSet<>(categoryRepository.findAllById(bookRequest.getCategoriesId()));

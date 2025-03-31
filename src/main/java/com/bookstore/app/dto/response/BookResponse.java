@@ -21,6 +21,7 @@ public class BookResponse {
      String largeImageUrl;
      double price;
      LocalDate publishedDate;
+     int stock;
     Set<AuthorResponse> authors;
     Set<CategoryResponse> categories;
 }

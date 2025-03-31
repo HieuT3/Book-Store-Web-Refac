@@ -19,4 +19,5 @@ public interface BookService {
     List<BookResponse> getBooksByCategoryId(Long categoryId);
     List<BookResponse> getBooksFeaturedByCategoryId(Long categoryId, int page, int limit);
     List<BookResponse> searchByTitle(String title);
+    Long countBooksByCategoryId(Long categoryId);
 }

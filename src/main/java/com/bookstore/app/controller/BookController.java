@@ -4,6 +4,7 @@ import com.bookstore.app.dto.request.BookRequest;
 import com.bookstore.app.dto.response.ApiResponse;
 import com.bookstore.app.dto.response.BookResponse;
 import com.bookstore.app.dto.response.PageResponse;
+import com.bookstore.app.repository.BookRepository;
 import com.bookstore.app.service.BookService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -23,6 +24,7 @@ import java.util.List;
 public class BookController {
 
     BookService bookService;
+    BookRepository bookRepository;
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<BookResponse>>> getAll() {
@@ -144,4 +146,20 @@ public class BookController {
                         .build()
         );
     }
+
+//    @PutMapping("stock")
+//    public ResponseEntity<ApiResponse<Void>> updateBookStock(
+//            @RequestParam("quantity") int quantity
+//    ) {
+//        log.info("Update book stock with quantity: {}", quantity);
+//        List<Book> books = bookRepository.findAll();
+//        books.forEach(book -> book.setStock(quantity));
+//        bookRepository.saveAll(books);
+//        return ResponseEntity.ok(
+//                ApiResponse.<Void>builder()
+//                        .success(true)
+//                        .data(null)
+//                        .build()
+//        );
+//    }
 }

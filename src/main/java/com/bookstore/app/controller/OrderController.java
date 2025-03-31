@@ -4,6 +4,8 @@ import com.bookstore.app.constant.OrderStatusType;
 import com.bookstore.app.dto.request.OrderRequest;
 import com.bookstore.app.dto.response.ApiResponse;
 import com.bookstore.app.dto.response.OrderResponse;
+import com.bookstore.app.entity.User;
+import com.bookstore.app.security.CustomUserDetails;
 import com.bookstore.app.service.OrderService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +47,21 @@ public class OrderController {
                         .success(true)
                         .message("Get order by id: " + orderId)
                         .data(orderService.getOrderById(orderId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getOrderByUser(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+            ) {
+        User user =  userDetails.getUser();
+        log.info("Get order by user: {}", user.getUserId());
+        return ResponseEntity.ok(
+                ApiResponse.<List<OrderResponse>>builder()
+                        .success(true)
+                        .message("Get order by user: " + user.getUserId() + "successfully!")
+                        .data(orderService.getOrderByUser(user))
                         .build()
         );
     }

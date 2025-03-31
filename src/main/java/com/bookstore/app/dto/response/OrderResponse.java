@@ -14,11 +14,16 @@ public class OrderResponse {
     Long orderId;
     UserResponse user;
     LocalDateTime orderDate;
-    String shippingAddress;
     String recipientName;
+    String recipientEmail;
     String recipientPhone;
-    String paymentMethod;
+    String shippingAddress;
+    String recipientCity;
+    String recipientPostalCode;
+    String recipientCountry;
+    String shippingMethod;
     double shippingCost;
+    String paymentMethod;
     int bookCopies;
     double total;
     OrderStatusType orderStatus;

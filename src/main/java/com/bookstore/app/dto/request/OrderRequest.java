@@ -14,18 +14,33 @@ import lombok.experimental.FieldDefaults;
 public class OrderRequest {
 
     @NotBlank
-    String shippingAddress;
+    String recipientName;
 
     @NotBlank
-    String recipientName;
+    String recipientEmail;
 
     @NotBlank
     String recipientPhone;
 
     @NotBlank
-    String paymentMethod;
+    String shippingAddress;
+
+    @NotBlank
+    String recipientCity;
+
+    @NotBlank
+    String recipientPostalCode;
+
+    @NotBlank
+    String recipientCountry;
+
+    @NotBlank
+    String shippingMethod;
 
     @NotNull
     double shippingCost;
+
+    @NotBlank
+    String paymentMethod;
 
 }

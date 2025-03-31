@@ -48,6 +48,9 @@ public class Book {
     @Column(nullable = false)
     private LocalDate publishedDate;
 
+    @Column(nullable = false)
+    private int stock;
+
     @CreationTimestamp
     private LocalDateTime lastUpdated;
 

@@ -63,6 +63,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/order-detail/**").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/v1/order/**").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/review/**").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/notification/**").authenticated()
                                 .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated()

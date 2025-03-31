@@ -1,13 +1,21 @@
 package com.bookstore.app.service.impl;
 
+import com.bookstore.app.dto.response.BookResponse;
+import com.bookstore.app.dto.response.CartItemResponse;
+import com.bookstore.app.dto.response.CartResponse;
+import com.bookstore.app.entity.Book;
+import com.bookstore.app.repository.BookRepository;
 import com.bookstore.app.service.CartService;
 import com.bookstore.app.utils.CartItems;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -17,9 +25,11 @@ import java.util.concurrent.TimeUnit;
 public class CartServiceImpl implements CartService {
 
     RedisTemplate<String, Object> redisTemplate;
+    BookRepository bookRepository;
     static String CART_KEY_PREFIX = "cart::";
     static Long CART_EXPIRE_TIME = 60 * 60 *  24L;
     Random random = new Random();
+    ModelMapper modelMapper;
 
     private String generateCartId() {
         String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -37,8 +47,25 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartItems getItems(String cartId) {
-        return  (CartItems) redisTemplate.opsForValue().get(cartId);
+    public CartResponse getItems(String cartId) {
+        if (cartId == null || cartId.isEmpty()) {
+            return new CartResponse(List.of());
+        }
+
+        CartItems cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
+        if (cartItems == null || cartItems.getItems().isEmpty()) {
+            return new CartResponse(List.of());
+        }
+
+        Map<Long, Integer> items = cartItems.getItems();
+        List<Book> books = bookRepository.findAllById(items.keySet());
+
+        return new CartResponse(books.stream()
+                .map(book -> new CartItemResponse(
+                        modelMapper.map(book, BookResponse.class),
+                        items.get(book.getBookId())
+                ))
+                .toList());
     }
 
     @Override
@@ -53,10 +80,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void minusItems(String cartId, Long bookId, int quantity) {
+    public void updateItems(String cartId, Long bookId, int quantity) {
         CartItems cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
         if (cartItems != null) {
-            cartItems.minusItem(bookId, quantity);
+            cartItems.updateItem(bookId, quantity);
             save(cartId, cartItems);
         }
     }

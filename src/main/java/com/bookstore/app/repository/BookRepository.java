@@ -19,4 +19,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "join b.categories c " +
             "where c.categoryId = :categoryId")
     List<Book> findBooksFeaturedByCategory(@Param("categoryId") Long categoryId, Pageable pageable);
+
+    Long countBooksByCategories(Set<Category> categories);
 }

@@ -6,6 +6,7 @@ import com.bookstore.app.dto.response.OrderResponse;
 import com.bookstore.app.entity.Book;
 import com.bookstore.app.entity.Order;
 import com.bookstore.app.entity.OrderDetail;
+import com.bookstore.app.entity.User;
 import com.bookstore.app.exception.ResourceNotFoundException;
 import com.bookstore.app.repository.BookRepository;
 import com.bookstore.app.repository.OrderRepository;
@@ -54,6 +55,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<OrderResponse> getOrderByUser(User user) {
+        List<Order> orders = orderRepository.findOrderByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("No orders found for user: " + user.getUserId()));
+        return orders.stream()
+                .map(order -> modelMapper.map(order, OrderResponse.class))
+                .toList();
+    }
+
+    @Override
     public OrderResponse createOrder(String cartId, OrderRequest orderRequest, HttpServletResponse response) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartItems cartItems = (CartItems) redisTemplate.opsForValue().get(cartId);
@@ -63,11 +73,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setUser(userDetails.getUser());
-        order.setShippingAddress(orderRequest.getShippingAddress());
-        order.setRecipientName(orderRequest.getRecipientName());
-        order.setRecipientPhone(orderRequest.getRecipientPhone());
-        order.setPaymentMethod(orderRequest.getPaymentMethod());
-        order.setShippingCost(orderRequest.getShippingCost());
+        setOrderInfo(order, orderRequest);
 
         Map<Long, Integer> items = cartItems.getItems();
         List<Book> books = bookRepository.findAllById(items.keySet());
@@ -109,11 +115,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse updateInfoOrder(Long orderId, OrderRequest orderRequest) {
         Order existingOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
-        existingOrder.setShippingAddress(orderRequest.getShippingAddress());
-        existingOrder.setRecipientName(orderRequest.getRecipientName());
-        existingOrder.setRecipientPhone(orderRequest.getRecipientPhone());
-        existingOrder.setPaymentMethod(orderRequest.getPaymentMethod());
-        existingOrder.setShippingCost(orderRequest.getShippingCost());
+        setOrderInfo(existingOrder, orderRequest);
 
         return modelMapper.map(orderRepository.save(existingOrder), OrderResponse.class);
     }
@@ -131,5 +133,18 @@ public class OrderServiceImpl implements OrderService {
         Order existingOrder = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
         orderRepository.delete(existingOrder);
+    }
+
+    private void setOrderInfo(Order order, OrderRequest orderRequest) {
+        order.setRecipientName(orderRequest.getRecipientName());
+        order.setRecipientEmail(orderRequest.getRecipientEmail());
+        order.setRecipientPhone(orderRequest.getRecipientPhone());
+        order.setShippingAddress(orderRequest.getShippingAddress());
+        order.setRecipientCity(orderRequest.getRecipientCity());
+        order.setRecipientPostalCode(orderRequest.getRecipientPostalCode());
+        order.setRecipientCountry(orderRequest.getRecipientCountry());
+        order.setShippingMethod(orderRequest.getShippingMethod());
+        order.setShippingCost(orderRequest.getShippingCost());
+        order.setPaymentMethod(orderRequest.getPaymentMethod());
     }
 }
